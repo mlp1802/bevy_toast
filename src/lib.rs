@@ -16,17 +16,16 @@ impl Plugin for ToastPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<ShowToast>()
             .insert_resource(ToastQueue::default())
-            .add_startup_system(build_ui)
+            .add_systems(Startup, build_ui)
             //.add_system(always_on_top)
-            .add_system(toast_evt_reader)
-            .add_system(display_toast);
+            .add_systems(Update, (toast_evt_reader, display_toast));
     }
 }
 
 // --------------- RESOURCES --------------- //
 
 /// Event which represent the data sent to a toast
-#[derive(Clone)]
+#[derive(Clone, Event)]
 pub struct ShowToast {
     pub title: String,
     pub subtitle: String,
@@ -170,12 +169,10 @@ fn build_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
         z_index: ZIndex::Global(10000),
         style: Style {
             position_type: PositionType::Absolute,
-            position: UiRect {
-                top: Val::Px(-100.),
-                right: Val::Px(5.),
-                ..Default::default()
-            },
-            size: Size::new(Val::Px(TOAST_WIDTH), Val::Px(TOAST_HEIGHT)),
+            top: Val::Px(100.),
+            right: Val::Px(5.0),
+            width: Val::Px(TOAST_WIDTH),
+            height: Val::Px(TOAST_HEIGHT),
             ..Default::default()
         },
 
